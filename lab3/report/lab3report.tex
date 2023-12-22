@@ -1,0 +1,138 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{shorttoc}
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english, russian]{babel}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\graphicspath{{./img/}}
+
+\definecolor{linkcolor}{HTML}{000000}
+\definecolor{urlcolor}{HTML}{0085FF}
+\hypersetup{pdfstartview=FitH,
+            linkcolor=linkcolor,
+            urlcolor=urlcolor,
+            colorlinks=true}
+
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+
+\renewcommand*\contentsname{Содержание}
+
+\newcommand{\plot}[3]{
+    \begin{figure}[H]
+        \begin{center}
+            \includegraphics[scale=0.6]{#1}
+            \caption{#2}
+            \label{#3}
+        \end{center}
+    \end{figure}
+}
+
+\begin{document}
+    \include{title}
+    \newpage
+
+    \tableofcontents
+    \listoffigures
+    \newpage
+
+    \section{Постановка задачи}
+    \quad Имеется выборка $ (X, (Y)) $. $ X $ -- множество вещественных чисел,
+    $ Y $ -- множество интервалов. Необходимо по построенному коридору совместных зависимостей провести анализ остатков.
+    
+    \section{Теория}
+    \quad Для выборки $ (X, (Y))$, $ X = \{x_i\}_{i=1}^{n}, {Y} = \{{y}_i\}_{i=1}^{n} $
+    ($ x_i $ - точеный, $ {y}_i $ - интервальный) и $ \Upsilon(x) $ -- коридора совместных зависимостей определены следующие отношения.
+
+    Размах:
+    \begin{equation}
+        l(x, y) = \frac{\Upsilon(x)}{rad(y)}
+    \end{equation}
+
+    Относительный остаток:
+    \begin{equation}
+        r(x, y) = \frac{mid(y) - mid(\Upsilon(x))}{rad(y)}
+    \end{equation}
+
+    Границы статусов наблюдений задаются выражениями:
+    \begin{equation}
+        |r(x, y)| \leq 1 - l(x, y)
+        \label{e:inner}
+    \end{equation}
+
+    \ref{e:inner} выполнено для внутренних наблюдений. Если достигается равенство, то наблюдение граничное.
+    
+    \begin{equation}
+        |r(x, y)| > 1 + l(x, y)
+        \label{e:remainder}
+    \end{equation}
+
+     \ref{e:remainder} выполнено для выбросов.
+    
+    \begin{equation}
+        l(x, y) > 1
+        \label{e:outter}
+    \end{equation}
+    
+    При совместном невыполнении \ref{e:inner} и \ref{e:remainder} наблюдение
+    считается внешним. Если, кроме этого, выполнено еще и \ref{e:outter}, то
+    наблюдение -- абсолютно внешнее.
+
+    \section{Реализация}
+    \quad Весь код написан на языке Python (версии 3.9.5).
+    \href{https://github.com/BoIlAl/Intervals/tree/master/lab3}{Ссылка на GitHub с исходным кодом}.
+
+    \section{Результаты}
+    \quad Данные были взяты из файлов \textsl{rawData/0.05V\_sp321.dat}, \textsl{rawData/-0.05V\_sp547.dat}, \textsl{rawData/0.15V\_sp9.dat}, \textsl{rawData/-0.15V\_sp831.dat}, \textsl{rawData/0.25V\_sp320.dat}, \textsl{rawData/-0.25V\_sp484.dat}, \textsl{rawData/0.35V\_sp300.dat}, \textsl{rawData/-0.35V\_sp670.dat}, \textsl{rawData/-0.45V\_sp31.dat} и \textsl{rawData/0.45V\_sp176.dat}. С коррекцией при помощи вспомогательных данных из файла \textsl{rawData/0.0V\_sp812.dat}. Набор значений
+    $ X = [-0.45, -0.35, -0.25, -0.15, -0.05, 0.05, 0.15, 0.25, 0.35, 0.45] $. Набор значений $ Y_1 $ определяется как интервальная
+    мода данных из соответсвующих файлов (изначальные данные обыинтерваливаются с $eps = 600 $). Набор значений $ Y_2 $ определяется как обынтерваленное среднее из соответсвующих файлов ($eps = 125 $). 
+    
+    Начнем с $ Y_1 $. Итоговая выборка:
+    \plot{img/X, (Y1).png}{Исходная интервальная выборка $ X, (Y_1) $}{p:y1}
+
+    Следует отметить, что 1 и 7 интервалы малы настолько, что отсутствуют на графике. Однако учитываются в дальнейших вычислениях. 
+    
+    Точечная линейная регрессия имеет вид: 
+    \plot{img/Regression X, (Y1).png}{Точечная линейная регрессия выборки $ X, (Y_1) $}{p:regY1}
+
+    Построим информационное множество:
+    \plot{img/Inform X, (Y1).png}{Информационное множество выборки $ X, (Y_1) $}{p:infY1}
+
+    Коридор совместных зависимостей:
+    \plot{img/Corridor X, (Y1).png}{Коридор совместных зависимостей выборки $ X, (Y_1) $}{p:corY1}
+
+    4 и 6 наблюдения лежат вне коридора совместных зависимостей.
+
+    Строим диаграмму статусов:
+    \plot{img/Status diagram X, (Y1).png}{Диаграмма статусов выборки $ X, (Y_1) $}{p:dsY1}
+
+    Наблюдения 4, 6 являются выбросами. 1, 3, 5, 7 наблюдения граничные, остальные внутренние.
+
+    Теперь $ Y_2 $. Итоговая выборка:
+    \plot{img/X, (Y2).png}{Исходная интервальная выборка $ X, (Y_2) $}{p:y2}
+
+    Точечная линейная регрессия имеет вид: 
+    \plot{img/Regression X, (Y2).png}{Точечная линейная регрессия выборки $ X, (Y_2) $}{p:regY2}
+
+    Построим информационное множество:
+    \plot{img/Inform X, (Y2).png}{Информационное множество выборки $ X, (Y_2) $}{p:infY2}
+
+    Коридор совместных зависимостей:
+    \plot{img/Corridor X, (Y2).png}{Коридор совместных зависимостей выборки $ X, (Y_2) $}{p:corY2}
+
+    Строим диаграмму статусов:
+    \plot{img/Status diagram X, (Y2) textless.png}{Диаграмма статусов выборки $ X, (Y_2) $}{p:dsY2}
+
+    \plot{img/Status diagram X, (Y2) zoom.png}{Диаграмма статусов выборки $ X, (Y_2) $ приближение}{p:dszY2}
+
+    Наблюдения 1, 4, 5, 7, 10 являются граничными, остальные внутренние.
+    
+    \section{Обсуждение}
+    \quad Из полученых результатов можно заметить, что диаграммы статусов соотносятся с построенными информационными множествами: количество наблюдений, задающих информационное множество, совпадает с количеством наблюдений со статусом "граничное". Также статусы совпадают с положением наблюдений в коридоре совместных зависимостей.
+\end{document}
