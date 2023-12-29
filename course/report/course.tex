@@ -1,0 +1,111 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{shorttoc}
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english, russian]{babel}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\graphicspath{{./img/}}
+
+\definecolor{linkcolor}{HTML}{000000}
+\definecolor{urlcolor}{HTML}{0085FF}
+\hypersetup{pdfstartview=FitH,
+            linkcolor=linkcolor,
+            urlcolor=urlcolor,
+            colorlinks=true}
+
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+
+\renewcommand*\contentsname{Содержание}
+
+\newcommand{\plot}[3]{
+    \begin{figure}[H]
+        \begin{center}
+            \includegraphics[scale=0.6]{#1}
+            \caption{#2}
+            \label{#3}
+        \end{center}
+    \end{figure}
+}
+
+\begin{document}
+    \include{title}
+    \newpage
+
+    \tableofcontents
+    \listoffigures
+    \newpage
+
+    \section{Постановка задачи}
+    \quad Решить СЛАУ, правая часть которой представлена в виде трапециевидных нечетких чисел, а левая -- матрицей томографии. Сравнить различные способы решения.
+    
+    \section{Теория}
+    \quad Имеется фиксированное количество областей, находящихся на определенном расстоянии от камеры-обскура, за которой стоят датчики. Геометрическая модель такой конструкции представляет собой $ m $ окружностей (областей) и $ n $ хорд \ref{p:model}. Элементы матрицы томографии находятся как точки пересечения хорд с каждой из окружностей.
+
+    \plot{img/tom.png}{Геометрическая модель}{p:model}
+
+    \quad Имеется СЛАУ, левая часть которой представлена матрицей томографии, а правая представляет собой вектор трапециевидных нечетких чисел:
+
+    \begin{equation}
+        Ax = fuzzy(a, b, \gamma, \delta)
+        \label{e:slau}
+    \end{equation}
+
+    Рассмотрим два способа решения ИСЛАУ такого вида:
+
+    Независмо решить СЛАУ стандартными методами для ядра $ [a, b] $ и для носителя $ [\gamma, \delta] $ с использованием интервальной арифметики. Из полученных результатов сконструировать вектор-решение трапециевидных нечетких чисел.
+
+    Решить СЛАУ стандартными методами с использованием арифметики нечетких чисел.
+
+    Для поиска точечного решения системы независимо для ядра $ [a, b] $ и для носителя $ [\gamma, \delta] $ решается оптимизационная задача вида:
+
+    \begin{equation}
+        \begin{gathered}
+            \sum_{i = 1}^{n}w_{i} \to \min \\
+            \text{mid}\underline{y_i} - w_{i} \text{rad}\underline{y_i} \leq \sum_{j = 1}^{m}{a_{ij}x_j} \leq \text{mid}\overline{y_i} + w_{i} \text{rad}\overline{y_i} \\
+            w_{i} \geq 0, i = 1..n, \\
+        \end{gathered}
+        \label{e:point}
+    \end{equation}
+
+    \section{Реализация}
+    \quad Весь код написан на языке Python (версии 3.9.5).
+    \href{https://github.com/BoIlAl/Intervals/tree/master/course}{Ссылка на GitHub с исходным кодом}.
+
+    \section{Результаты}
+    \quad Рассматривается модель с $ m = n = 4 $. Точное решение $ x_j = 1, j = 1..m $, отсюда находится  $ b $. Вектор нечетких чисел: $ bf_j = fuzzy(b_j - \epsilon, b_j + \epsilon, b_j - 2 * \epsilon, b_j + 2 * \epsilon) $, где $ \epsilon = 0.0001 $. В качестве метода решения СЛАУ использован матричный.
+
+    Точечное решение:
+
+    $ x = [0.9999999997, 0.9999999998, 0.999999997, 1.000000003] $
+
+    Результат раздельного решения:
+
+    $ x = [[-3.37019, 5.37019], [-7.74037, 9.74037]], $
+    
+    $ [[-1.56107, 3.56107], [-4.12214, 6.12214]], $
+    
+    $ [[-42.63182, 44.63182], [-86.26364, 88.26364]], $
+    
+    $ [[-49.56259, 51.56259], [-100.12518, 102.12518]] $
+
+    Решение с использованием арифметики нечетких чисел:
+
+    $ x = [[-3.37019, 5.37019], [-7.74037, 9.74037]], $
+    
+    $ [[-1.56107, 3.56107], [-4.12214, 6.12214]], $
+    
+    $ [[-42.63182, 44.63182], [-86.26364, 88.26364]], $
+    
+    $ [[-49.56259, 51.56259], [-100.12518, 102.12518]] $
+    
+    \section{Обсуждение}
+    \quad Можно заметить, что точечное решение лежит внутри ядер нечетких чисел.
+    Результаты решения разными методами совпали, что обусловленно особенностями арифметики трапиевидных нечетких чисел.
+\end{document}
