@@ -115,15 +115,30 @@ def main():
     x = [1] * len(A)
     b = calc_b_2(A, x)
 
+    print_vec(b)
+
+    print(b[0].kernel.wid)
+    print(b[0].support.wid)
+
     x_in, x_out = points_solution(A, b)
-    print_vec(x_in)
-    print_vec(x_out)
+    #print_vec(x_in)
+    #print_vec(x_out)
 
     x_1 = div_solution(A, b)
-    print_vec(x_1)
+    #print_vec(x_1)
 
     x_2 = solution(A, b)
-    print_vec(x_2)
+    #print_vec(x_2)
+
+    b_new = np.dot(A, x_1)
+
+    print_vec(b_new)
+
+    print(b_new[0].kernel.wid)
+    print(b_new[0].support.wid)
+
+    print(b_new[0].kernel.wid / b[0].kernel.wid)
+    print(b_new[0].support.wid / b[0].support.wid)
 
 
 if __name__ == '__main__':
